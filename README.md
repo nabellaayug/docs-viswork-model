@@ -166,9 +166,10 @@ Backbone
 └─ C2PSA
 │
 ▼
-Neck (PAFPN)
-├─ Top-down
-└─ Bottom-up
+Neck (Multi-scale Feature Fusion)
+├─ Upsampling + concatenation
+├─ Ck32 Block
+└─ Feature refinement
 │
 ▼
 Detection Head
@@ -208,15 +209,17 @@ Backbone berfungsi sebagai **ekstraktor fitur utama**.
 
 ---
 
-## 🔗 Neck (PAFPN)
+## 🔗 Neck (Multi-Scale Feature Fusion)
 
-YOLOv11 menggunakan **Path Aggregation Feature Pyramid Network (PAFPN)** untuk fusi fitur multi-skala.
+YOLOv11 menggunakan multi-scale feature fusion pada bagian neck untuk menggabungkan feature map dari berbagai resolusi sebelum diteruskan ke detection head.
 
 ### Karakteristik
-- **Top-down pathway**  
-  Menggabungkan semantic feature tingkat tinggi ke resolusi lebih rendah
-- **Bottom-up pathway**  
-  Mengirim kembali detail spasial ke level fitur atas
+- **Upsampling + concatenation**  
+  Menggabungkan feature map dari level berbeda untuk menangkap informasi multi-skala
+- **C3k2 Block**  
+  Menggantikan C2f block pada neck untuk meningkatkan efisiensi komputasi dan kecepatan
+- **Feature refinement**  
+  Fitur yang masuk ke neck telah diperkaya oleh SPPF dan C2PSA, sehingga memiliki context global dan spacial attention yang lebih baik
 
 Tujuan utama: meningkatkan deteksi objek **kecil, sedang, dan besar** secara seimbang.
 
