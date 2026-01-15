@@ -4,7 +4,7 @@
 
 ## 📌 Overview
 
-**Viswork** adalah platform **video analytics berbasis AI** yang memanfaatkan teknologi **computer vision** untuk melakukan analisis **real-time** dan **near real-time** dari kamera **CCTV**. Sistem ini dirancang untuk mengubah *video mentah* menjadi **insight terstruktur** yang dapat digunakan untuk kebutuhan operasional, monitoring, dan pengambilan keputusan.
+**Viswork** adalah platform **video analytics berbasis AI** yang memanfaatkan teknologi **computer vision** untuk melakukan analisis **real-time** dari kamera **CCTV**. Sistem ini dirancang untuk mengubah *video mentah* menjadi **insight terstruktur** yang dapat digunakan untuk kebutuhan operasional, monitoring, dan pengambilan keputusan.
 
 Fokus utama use-case Viswork meliputi:
 
@@ -161,16 +161,28 @@ Input Image
 │
 ▼
 Backbone
+├─ CSP Blocks (C3k2)
+├─ SPPF
+└─ C2PSA
 │
 ▼
-Neck
+Neck (PAFPN)
+├─ Top-down
+└─ Bottom-up
 │
 ▼
 Detection Head
+├─ Bounding Box Regression
+├─ Objectness Prediction
+└─ Class Prediction
 │
 ▼
 Bounding Box + Class + Confidence
-
+│
+└─ (Training Only)
+   ├─ CIoU Loss
+   ├─ DFL
+   └─ BCE 
 ```
 
 ---
@@ -204,7 +216,7 @@ YOLOv11 menggunakan **Path Aggregation Feature Pyramid Network (PAFPN)** untuk f
 - **Top-down pathway**  
   Menggabungkan semantic feature tingkat tinggi ke resolusi lebih rendah
 - **Bottom-up pathway**  
-  Mengalirkan kembali detail spasial ke level fitur atas
+  Mengirim kembali detail spasial ke level fitur atas
 
 Tujuan utama: meningkatkan deteksi objek **kecil, sedang, dan besar** secara seimbang.
 
@@ -231,7 +243,7 @@ YOLOv11 menggunakan **dense detection paradigm**:
 - Satu objek dapat menghasilkan **banyak prediksi**
 - Prediksi bersifat **lokal** (berdasarkan receptive field CNN)
 
-Konsekuensi:
+Yang akan terjadi adalah:
 - Inferensi cepat
 - Menghasilkan prediksi tumpang tindih
 
@@ -288,21 +300,33 @@ Karakteristik utama:
 
 ```
 
-Image
-↓
+Input Image
+│
+▼
 CNN Backbone (S3, S4, S5)
-↓
+│
+▼
 Hybrid Encoder
 ├─ AIFI (Self-Attention on S5)
 └─ CCFF (Cross-scale Feature Fusion)
-↓
+│
+▼
 Transformer Decoder
 └─ Object Queries
-↓
+│
+▼
 Predictions
-├─ Bounding box (cx, cy, w, h)
-├─ Class probability
+├─ Bounding Box
+├─ Class Probability
 └─ Confidence
+│
+└─ (Training Only)
+   ├─ Hungarian Matching
+   ├─ Classification Loss
+   ├─ L1 Loss
+   ├─ GIoU Loss
+   ├─ Deep Semantic Injector (DSI)
+   └─ Gradient-guided Adaptive Modulation (GAM)
 
 ```
 
@@ -347,10 +371,8 @@ RT-DETRv4 menggunakan **Hungarian matching** untuk mencocokkan prediksi dan grou
 - One-to-one assignment
 - Optimisasi global
 - Tidak ada duplicate detection
-
-Dampak langsung:
-- ❌ Tidak perlu NMS
-- ❌ Tidak perlu anchor
+- ❌ Tidak memerlukan NMS
+- ❌ Tidak memerlukan anchor
 
 ---
 
