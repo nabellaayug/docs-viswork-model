@@ -430,5 +430,4 @@ Loss dihitung setelah Hungarian matching.
   https://arxiv.org/abs/2510.25257
 ```
 
----
 
